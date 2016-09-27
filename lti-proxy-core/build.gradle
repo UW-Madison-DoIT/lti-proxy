@@ -1,0 +1,30 @@
+modifyPom {
+  project {
+    name 'LTI Proxy Core'
+    description 'A simple server-side LTI proxy library'
+  }
+}
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.4.7'
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'commons-codec:commons-codec:1.10'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.0'
+    compile 'com.google.guava:guava:19.0'
+    compile 'org.springframework:spring-core:4.3.1.RELEASE'
+    compile 'org.springframework:spring-web:4.3.1.RELEASE'
+    compile 'org.springframework:spring-webmvc:4.3.1.RELEASE'
+    compile 'org.slf4j:jcl-over-slf4j:1.7.21'
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    compile 'io.jsonwebtoken:jjwt:0.6.0'
+    runtime 'ch.qos.logback:logback-classic:1.1.7'
+    runtime 'org.slf4j:jul-to-slf4j:1.7.21'
+    runtime 'org.slf4j:log4j-over-slf4j:1.7.21'
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.10.19'
+    testCompile 'org.springframework:spring-test:4.3.1.RELEASE'
+    provided 'javax.servlet:javax.servlet-api:3.1.0'
+}
