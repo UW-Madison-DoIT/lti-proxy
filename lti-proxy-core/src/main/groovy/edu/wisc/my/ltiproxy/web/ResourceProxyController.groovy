@@ -1,6 +1,5 @@
 package edu.wisc.my.lti.web
 
-import edu.wisc.my.restproxy.service.ReportService
 import groovy.transform.CompileStatic;
 
 import javax.servlet.http.HttpServletRequest;

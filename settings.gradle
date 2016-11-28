@@ -1,3 +1,3 @@
-rootProject.name = 'rest-proxy-parent'
-include 'rest-proxy-boot'
-include 'rest-proxy-core'
+rootProject.name = 'lti-proxy-parent'
+include 'lti-proxy-boot'
+include 'lti-proxy-core'
