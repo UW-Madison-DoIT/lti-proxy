@@ -1,91 +1,40 @@
 buildscript {
-    repositories { jcenter() }
-    dependencies { classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1' }
+    repositories { 
+      mavenCentral()
+    }
+    dependencies {
+      classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.4.2.RELEASE'
+    }
 }
 
-plugins {
-    id "org.sonarqube" version "1.0"
-}
-
-subprojects {
-
-    group = 'edu.wisc.my.ltiproxy'
-    version = '1.0.0'
-
-    repositories {
-        mavenCentral()
+  apply plugin: 'java'
+  apply plugin: 'spring-boot'
+  
+  
+  repositories { 
+      jcenter()
+      mavenCentral()
     }
 
-    apply plugin: 'groovy'
-    apply plugin: 'com.bmuschko.nexus'
 
-    // Nexus deploy configuration
-    nexus {
-        sign = true
-        repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-        snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
-    }
-
-    extraArchive {
-        javadoc = true
-        sources = true
-        tests = true
-    }
-
-    modifyPom {
-        project {
-            name 'LTI Proxy Parent'
-            description 'LTI Proxy Parent'
-            url 'https://github.com/UW-Madison-DoIT/lti-proxy'
-            inceptionYear '2015'
-            scm {
-                url 'https://github.com/UW-Madison-DoIT/lti-proxy'
-                connection 'scm:https://github.com/UW-Madison-DoIT/lti-proxy.git'
-                developerConnection 'scm:git://github.com/UW-Madison-DoIT/lti-proxy.git'
-            }
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
-                }
-            }
-            developers {
-                developer {
-                    name 'My UW Dev Team'
-                    email 'my-admin@lists.wisc.edu'
-                    url 'https://github.com/UW-Madison-DoIT'
-                    organization 'UW-Madison-DoIT'
-                }
-            }
-            // The nexus plugin overlooks provided dependencies
-            // so we override this bit to make sure they get in
-            def generatedDeps = dependencies
-            dependencies {
-                generatedDeps.each { dep ->
-                    dependency {
-                        groupId dep.groupId
-                        artifactId dep.artifactId
-                        version dep.version
-                        scope dep.scope
-                    }
-                }
-                project.configurations.provided.allDependencies.each { dep ->
-                    dependency {
-                        groupId dep.group
-                        artifactId dep.name
-                        version dep.version
-                        scope 'provided'
-                    }
-                }
-            }
-        }
-    }
-
-    // Define provided scope
-    configurations {
-        provided
-        compile.extendsFrom provided
-    }
-
-}
+  dependencies {
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'commons-codec:commons-codec:1.10'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.0'
+    compile 'com.google.guava:guava:19.0'
+    compile 'org.springframework:spring-core:4.3.1.RELEASE'
+    compile 'org.springframework:spring-web:4.3.1.RELEASE'
+    compile 'org.springframework:spring-webmvc:4.3.1.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-data-rest'
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'io.jsonwebtoken:jjwt:0.6.0'
+    compile group: 'net.oauth.core', name: 'oauth', version: '20100527'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+    compile "org.springframework.boot:spring-boot-devtools"
+    runtime 'ch.qos.logback:logback-classic:1.1.7'
+    runtime 'org.slf4j:jul-to-slf4j:1.7.21'
+    runtime 'org.slf4j:log4j-over-slf4j:1.7.21'
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.10.19'
+    testCompile 'org.springframework:spring-test:4.3.1.RELEASE'
+  }
