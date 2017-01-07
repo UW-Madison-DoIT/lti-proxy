@@ -1,2 +1,15 @@
 endpoints.enabled=false
 endpoints.health.enabled=true
+server.port = 8090
+logging.level.org.springframework.web=DEBUG
+app.launchParams=\
+{"param_name_one" : "param_value_one"\
+,"param_name_two" : "param_value_two"\
+}
+app.key=APP_KEY
+app.secret=APP_SECRET
+app.actionURL=APP_ACTION_URL
+app.headerReplacement = \
+{ "param_to_add_or_replace_one" : "header_value_to_replace"\
+  ,"param_to_add_or_replace_two" : "header_value_to_replace_option_one,header_value_to_replace_option_two"\
+}
