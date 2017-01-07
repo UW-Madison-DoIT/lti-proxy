@@ -20,4 +20,5 @@ build/
 .idea/
 *.swp
 *.iml
+*.DS_Store
 src/main/resources/application.properties
