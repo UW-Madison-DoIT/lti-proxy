@@ -1,5 +1,5 @@
 ### LTI Proxy
 
-This service is a gateway to utilizing an LTI enabled provider.
+A configurable service to sign LTI parameters are return form data for your application
 
-## To Use
+See this [project's documentation](https://uw-madison-doit.github.io/lti-proxy/)  for more details.
