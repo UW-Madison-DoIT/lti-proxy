@@ -9,9 +9,10 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 public interface LTILaunchService {
-    public URI getRedirectUri(String launchKey, Map<String, String> headers) throws JsonParseException, JsonMappingException, IOException, LtiSigningException, JSONException;
+    public URI getRedirectUri(String launchKey, Map<String, String> headers) throws JsonParseException, JsonMappingException, IOException, LtiSigningException, URISyntaxException;
     public JSONObject getFormData(String launchKey, Map<String, String> headers) throws JsonParseException, JsonMappingException, IOException, LtiSigningException, JSONException;
 }

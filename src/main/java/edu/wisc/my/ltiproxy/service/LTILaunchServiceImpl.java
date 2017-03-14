@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+
 import org.imsglobal.lti.launch.LtiOauthSigner;
 import org.imsglobal.lti.launch.LtiSigner;
 import org.imsglobal.lti.launch.LtiSigningException;
@@ -22,18 +23,27 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edu.wisc.my.ltiproxy.LTIParameters;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.HttpHeaders;
+import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class LTILaunchServiceImpl implements LTILaunchService{
-    
-    private RestTemplate rest = new RestTemplate();
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
     private LTILaunchPropertyFileDao LTILaunchPropertyFileDao;
     
     private static final String UTF8 = StandardCharsets.UTF_8.name();
@@ -45,20 +55,54 @@ public class LTILaunchServiceImpl implements LTILaunchService{
 
     @Override
     public URI getRedirectUri (String key, Map<String, String> headers) throws
-        JsonParseException, JsonMappingException, IOException, LtiSigningException, JSONException {
-        URI result;
+        JsonParseException, JsonMappingException, IOException, LtiSigningException, URISyntaxException {
+        URI result = null;
         
         Map<String, String> prepParams = prepareParameters(key, headers);
         LTIParameters ltiParams = signParameters(key, prepParams);
         
         String actionUrl = ltiParams.getActionURL();
-        String formBody = buildFormBody(ltiParams.getSignedParameters());
-        HttpHeaders ltiHeaders = new HttpHeaders();
-        ltiHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        HttpEntity<String> ltiReq = new HttpEntity<>(formBody);
+        List<NameValuePair> formBody = buildFormBody(ltiParams.getSignedParameters());
         
-        ResponseEntity<String> ltiResp = rest.exchange(actionUrl, HttpMethod.POST, ltiReq, String.class);
-        result = ltiResp.getHeaders().getLocation();
+        CloseableHttpClient httpClient = null;
+        CloseableHttpResponse httpResp = null;
+
+        try {
+            httpClient = HttpClients.createDefault();
+            HttpPost httpPost = new HttpPost(actionUrl);
+            UrlEncodedFormEntity ent = new UrlEncodedFormEntity(formBody);
+            httpPost.setEntity(ent);
+
+            httpResp = httpClient.execute(httpPost);
+            
+            int status = httpResp.getStatusLine().getStatusCode();
+            logger.debug("status " + status);
+            for (Header header : httpResp.getAllHeaders()) {
+                logger.trace(header.getName() + " : " + header.getValue());
+            }
+            
+            HttpEntity respEntity = httpResp.getEntity();
+            byte[] b = EntityUtils.toByteArray(respEntity);
+            EntityUtils.consumeQuietly(respEntity);
+            
+            logger.trace(new String(b));
+            
+            if (303 == status) {
+                String loc = httpResp.getLastHeader(HttpHeaders.LOCATION).getValue();
+                logger.trace(loc);
+                result = new URI(loc);
+            }
+            
+            
+        } finally {
+            if (null != httpClient) {
+                httpClient.close();
+            }
+            if (null != httpResp) {
+                httpResp.close();
+            }
+        }
+        
         
         return result;
     }
@@ -124,17 +168,13 @@ public class LTILaunchServiceImpl implements LTILaunchService{
         return headers;
     }
     
-    private String buildFormBody(Map<String, String> parameters) throws UnsupportedEncodingException {
-        StringBuilder result = new StringBuilder();
+    private List<NameValuePair> buildFormBody(Map<String, String> parameters) throws UnsupportedEncodingException {
+        List<NameValuePair> result = new ArrayList<>();
         
-        for (Entry<String, String> param : parameters.entrySet()) {
-            result.append("&")
-                    .append(param.getKey()) //TODO urlencode?
-                    .append("=")
-                    .append(param.getValue());
+        for (Entry<String, String> entry : parameters.entrySet()) {
+            result.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
         }
-        result.deleteCharAt(0);
         
-        return result.toString();
+        return result;
     }
 }

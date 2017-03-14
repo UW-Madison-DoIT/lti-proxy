@@ -4,6 +4,7 @@ import edu.wisc.my.ltiproxy.service.LTILaunchService;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class LTIController {
 
   @RequestMapping(value="/go/{key}", method=RequestMethod.GET)
   public void proxyRedirect(HttpServletRequest request, HttpServletResponse response, @PathVariable String key) throws 
-          ClientProtocolException, IOException, LtiSigningException, JSONException {
+          ClientProtocolException, IOException, LtiSigningException, URISyntaxException {
       int statusCode = HttpServletResponse.SC_BAD_REQUEST;
       
       URI uri = LTILaunchService.getRedirectUri(key, getHeaders(request));
