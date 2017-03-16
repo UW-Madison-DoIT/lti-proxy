@@ -1,8 +1,14 @@
 package edu.wisc.my.ltiproxy.web;
 
+import com.google.common.base.Strings;
 import edu.wisc.my.ltiproxy.service.LTILaunchService;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,13 +36,34 @@ public class LTIController {
       this.LTILaunchService = LTILaunchService;
   }
 
-
-  @RequestMapping(value="/{key}", method=RequestMethod.GET)
-  public @ResponseBody Object proxyResource(HttpServletRequest request, HttpServletResponse response, @PathVariable String key) throws ClientProtocolException, IOException, LtiSigningException, JSONException {
-
-     JSONObject jsonToReturn = LTILaunchService.getFormData(key, request);
-     response.setStatus(HttpServletResponse.SC_OK);
-     return jsonToReturn.toString();
+  @RequestMapping(value="/go/{key}", method=RequestMethod.GET)
+  public void proxyRedirect(HttpServletRequest request, HttpServletResponse response, @PathVariable String key) throws 
+          ClientProtocolException, IOException, LtiSigningException, URISyntaxException {
+      URI uri = LTILaunchService.getRedirectUri(key, getHeaders(request));
+      
+      if (null != uri) {
+          response.sendRedirect(uri.toString());
+      } else {
+          String errorMsg = "Could not build redirect URI" + ((!Strings.isNullOrEmpty(key))?" for "+key: "");
+          response.sendError(HttpServletResponse.SC_BAD_REQUEST, errorMsg);
+      }
   }
 
+  @RequestMapping(value="/{key}", method=RequestMethod.GET)
+  public @ResponseBody Object proxyResource(HttpServletRequest request, HttpServletResponse response, @PathVariable String key) throws 
+          ClientProtocolException, IOException, LtiSigningException, JSONException {
+      JSONObject jsonToReturn = LTILaunchService.getFormData(key, getHeaders(request));
+      response.setStatus(HttpServletResponse.SC_OK);
+      return jsonToReturn.toString();
+  }
+
+  private Map<String, String> getHeaders(HttpServletRequest req) {
+      Map<String, String> result = new HashMap<>();
+      
+      for (String headerName : Collections.list(req.getHeaderNames())) {
+          result.put(headerName, req.getHeader(headerName));
+      }
+      
+      return result;
+  }
 }
