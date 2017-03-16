@@ -37,6 +37,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +88,7 @@ public class LTILaunchServiceImpl implements LTILaunchService{
             
             logger.trace(new String(b));
             
-            if (303 == status) {
+            if (HttpStatus.SC_SEE_OTHER == status) {
                 String loc = httpResp.getLastHeader(HttpHeaders.LOCATION).getValue();
                 logger.trace(loc);
                 result = new URI(loc);
