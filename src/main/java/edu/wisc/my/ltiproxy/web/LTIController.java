@@ -1,5 +1,6 @@
 package edu.wisc.my.ltiproxy.web;
 
+import com.google.common.base.Strings;
 import edu.wisc.my.ltiproxy.service.LTILaunchService;
 
 import java.io.IOException;
@@ -38,14 +39,13 @@ public class LTIController {
   @RequestMapping(value="/go/{key}", method=RequestMethod.GET)
   public void proxyRedirect(HttpServletRequest request, HttpServletResponse response, @PathVariable String key) throws 
           ClientProtocolException, IOException, LtiSigningException, URISyntaxException {
-      int statusCode = HttpServletResponse.SC_BAD_REQUEST;
-      
       URI uri = LTILaunchService.getRedirectUri(key, getHeaders(request));
       
       if (null != uri) {
           response.sendRedirect(uri.toString());
       } else {
-          response.sendError(statusCode, "Could not build redirect URI!");
+          String errorMsg = "Could not build redirect URI" + ((!Strings.isNullOrEmpty(key))?" for "+key: "");
+          response.sendError(HttpServletResponse.SC_BAD_REQUEST, errorMsg);
       }
   }
 
