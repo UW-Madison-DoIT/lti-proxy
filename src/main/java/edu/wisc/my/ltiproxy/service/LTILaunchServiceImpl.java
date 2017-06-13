@@ -38,8 +38,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,7 +129,7 @@ public class LTILaunchServiceImpl implements LTILaunchService{
         return jsonToReturn;
     }
     
-    private Map<String, String> prepareParameters(String key, Map<String, String> requestHeaders) throws 
+    protected Map<String, String> prepareParameters(String key, Map<String, String> requestHeaders) throws 
             JsonParseException, JsonMappingException, IOException, LtiSigningException, JSONException {
         Map<String, String> launchParameters = LTILaunchPropertyFileDao.getLaunchParameters(key);
         
@@ -142,7 +140,7 @@ public class LTILaunchServiceImpl implements LTILaunchService{
         return paramsToSign;
     }
     
-    private LTIParameters signParameters(String key, Map<String, String> paramsToSign) throws LtiSigningException {
+    protected LTIParameters signParameters(String key, Map<String, String> paramsToSign) throws LtiSigningException {
         LTIParameters result;
         
         LtiSigner ltiSigner = new LtiOauthSigner();
@@ -156,7 +154,7 @@ public class LTILaunchServiceImpl implements LTILaunchService{
         return result;
     }
     
-    private Map<String, String> replaceHeaders (String key, Map<String, String> requestHeaders) throws JsonParseException, JsonMappingException, IOException{
+    protected Map<String, String> replaceHeaders (String key, Map<String, String> requestHeaders) throws JsonParseException, JsonMappingException, IOException{
         Map<String, String> headers = new HashMap<>();
         Map<String, String[]> headersToReplace = LTILaunchPropertyFileDao.getHeadersToReplace(key);
         for( String headerToReplace : headersToReplace.keySet()){
@@ -171,7 +169,7 @@ public class LTILaunchServiceImpl implements LTILaunchService{
         return headers;
     }
     
-    private List<NameValuePair> buildFormBody(Map<String, String> parameters) throws UnsupportedEncodingException {
+    protected List<NameValuePair> buildFormBody(Map<String, String> parameters) throws UnsupportedEncodingException {
         List<NameValuePair> result = new ArrayList<>();
         
         for (Entry<String, String> entry : parameters.entrySet()) {
