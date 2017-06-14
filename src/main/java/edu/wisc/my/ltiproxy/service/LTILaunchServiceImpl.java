@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.google.common.collect.Multimap;
 import edu.wisc.my.ltiproxy.LTIParameters;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -156,13 +157,13 @@ public class LTILaunchServiceImpl implements LTILaunchService{
     
     protected Map<String, String> replaceHeaders (String key, Map<String, String> requestHeaders) throws JsonParseException, JsonMappingException, IOException{
         Map<String, String> headers = new HashMap<>();
-        Map<String, String[]> headersToReplace = LTILaunchPropertyFileDao.getHeadersToReplace(key);
-        for( String headerToReplace : headersToReplace.keySet()){
-          String[] headerAttributes = headersToReplace.get(headerToReplace);
-          for(String header : headerAttributes){
-            if(requestHeaders.get(header)!=null){
+        Multimap<String, String> headersToReplace = LTILaunchPropertyFileDao.getHeadersToReplace(key);
+        for(String headerToReplace : headersToReplace.keySet()) {
+          Iterable<String> headerAttributes = headersToReplace.get(headerToReplace);
+          for(String header : headerAttributes) {
+            if(requestHeaders.get(header)!=null) {
                 headers.put(headerToReplace, requestHeaders.get(header));
-              break;
+                break;
             }
           }
         }

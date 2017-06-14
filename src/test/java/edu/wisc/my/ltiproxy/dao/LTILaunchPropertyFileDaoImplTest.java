@@ -1,5 +1,8 @@
 package edu.wisc.my.ltiproxy.dao;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -22,13 +25,51 @@ public class LTILaunchPropertyFileDaoImplTest {
     @Autowired
     protected Environment env;
     protected LTILaunchPropertyFileDaoImpl instance;
-    protected String key;
+    
+    protected static String key;
+    protected static String expectedActionURL;
+    protected static Map<String, String> expectedLaunchParameters;
+    protected static Multimap<String, String> expectedHeadersToReplace;
     
     public LTILaunchPropertyFileDaoImplTest() {
     }
     
     @BeforeClass
     public static void setUpClass() {
+        key = "test";
+        
+        expectedActionURL = "http://localhost:8080/lti";
+        
+        expectedLaunchParameters = new HashMap<>();
+        expectedLaunchParameters.put("context_id", "test");
+        expectedLaunchParameters.put("context_label", "test");
+        expectedLaunchParameters.put("context_title", "test");
+        expectedLaunchParameters.put("launch_presentation_document_target", "frame");
+        expectedLaunchParameters.put("launch_presentation_locale", "EN-US__");
+        expectedLaunchParameters.put("lis_outcome_service_url", "http://localhost:8080/d2l/le/lti/Outcome");
+        expectedLaunchParameters.put("lis_person_contact_email_primary", "");
+        expectedLaunchParameters.put("lis_person_name_family", "");
+        expectedLaunchParameters.put("lis_person_name_full", "");
+        expectedLaunchParameters.put("lis_person_name_given", "");
+        expectedLaunchParameters.put("lti_message_type", "basic-lti-launch-request");
+        expectedLaunchParameters.put("lti_version", "LTI-1p0");
+        expectedLaunchParameters.put("resource_link_description", "MyUW Blackboard Ultra Collaborate LTI Launcher");
+        expectedLaunchParameters.put("resource_link_title", "Collaborate Ultra (LTI)");
+        expectedLaunchParameters.put("roles", "urn:lti:instrole:ims/lis/Staff,Staff");
+        expectedLaunchParameters.put("tool_consumer_info_product_family_code", "desire2learn");
+        expectedLaunchParameters.put("tool_consumer_info_version", "10.6.0");
+        expectedLaunchParameters.put("user_id", "");
+        
+        expectedHeadersToReplace = HashMultimap.create();
+        expectedHeadersToReplace.put("lis_person_contact_email_primary", "mail");
+        expectedHeadersToReplace.put("lis_person_name_family", "eduWisconsinSurname");
+        expectedHeadersToReplace.put("lis_person_name_family", "wiscEduSORLastName");
+        expectedHeadersToReplace.put("lis_person_name_full", "eduWisconsinCommonName");
+        expectedHeadersToReplace.put("lis_person_name_full", "uid");
+        expectedHeadersToReplace.put("lis_person_name_given", "eduWisconsinGivenName");
+        expectedHeadersToReplace.put("user_id", "eduWisconsinSPVI");
+        expectedHeadersToReplace.put("user_id", "wiscEduPVI");
+
     }
     
     @AfterClass
@@ -39,7 +80,6 @@ public class LTILaunchPropertyFileDaoImplTest {
     public void setUp() {
         instance = new LTILaunchPropertyFileDaoImpl();
         instance.setEnv(env);
-        key = "test";
     }
     
     @After
@@ -52,11 +92,9 @@ public class LTILaunchPropertyFileDaoImplTest {
     @Test
     public void testGetLaunchParameters() throws Exception {
         logger.info("getLaunchParameters");
-        Map<String, String> expResult = null;
+        Map<String, String> expResult = expectedLaunchParameters;
         Map<String, String> result = instance.getLaunchParameters(key);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -65,11 +103,9 @@ public class LTILaunchPropertyFileDaoImplTest {
     @Test
     public void testGetHeadersToReplace() throws Exception {
         logger.info("getHeadersToReplace");
-        Map expResult = null;
-        Map result = instance.getHeadersToReplace(key);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        Multimap<String, String> expResult = expectedHeadersToReplace;
+        Multimap<String, String> result = instance.getHeadersToReplace(key);
+        assertEquals(expResult.asMap(), result.asMap());
     }
 
     /**
@@ -78,12 +114,25 @@ public class LTILaunchPropertyFileDaoImplTest {
     @Test
     public void testGetProperty() {
         logger.info("getProperty");
-        String propertyName = "";
-        String expResult = "";
+        String propertyName = null;
+        String expResult = null;
         String result = instance.getProperty(key, propertyName);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        
+        propertyName = "";
+        expResult = null;
+        result = instance.getProperty(key, propertyName);
+        assertEquals(expResult, result);
+        
+        propertyName = "not_a_property";
+        expResult = null;
+        result = instance.getProperty(key, propertyName);
+        assertEquals(expResult, result);
+        
+        propertyName = "actionURL";
+        expResult = expectedActionURL;
+        result = instance.getProperty(key, propertyName);
+        assertEquals(expResult, result);
     }
     
 }

@@ -2,7 +2,6 @@ package edu.wisc.my.ltiproxy.service;
 
 import edu.wisc.my.ltiproxy.LTIParameters;
 import edu.wisc.my.ltiproxy.dao.LTILaunchPropertyFileDao;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +32,6 @@ public class LTILaunchServiceImplTest {
     
     protected static String key;
     protected static Map<String, String> exampleHeaders;
-    protected static URI expectedRedirectURI;
     protected static JSONObject expectedFormData;
     protected static Map<String, String> expectedPreparedParameters;
     protected static Map<String, String> expectedReplacedHeaders;
@@ -49,7 +47,7 @@ public class LTILaunchServiceImplTest {
     public static void setUpClass() {
         key = "test";
         
-        exampleHeaders = new HashMap<>();
+        exampleHeaders = new HashMap<String, String>();
         exampleHeaders.put("Host", "localhost:8080");
         exampleHeaders.put("Connection", "keep-alive");
         exampleHeaders.put("Pragma", "no-cache");
@@ -74,16 +72,25 @@ public class LTILaunchServiceImplTest {
         exampleHeaders.put("wiscEduWiscardAccountNumber", "01234567890");
         exampleHeaders.put("eduWisconsinGivenName", "TESTY TESTMAN");
         
-        expectedRedirectURI = null;
-        
         expectedFormData = null;
         
         expectedPreparedParameters = new HashMap<>();
         
         expectedReplacedHeaders = new HashMap<>();
+        expectedReplacedHeaders.put("lis_person_contact_email_primary", "TESTMAN@WISC.EDU");
+        expectedReplacedHeaders.put("lis_person_name_family", "TESTMAN");
+        expectedReplacedHeaders.put("lis_person_name_full", "testman");
+        expectedReplacedHeaders.put("lis_person_name_given", "TESTY TESTMAN");
+        expectedReplacedHeaders.put("user_id", "UW123B456");
         
-        actionURL = "";
+        actionURL = "http://localhost:8080/lti";
         expectedSignedParameters = new HashMap<>();
+        expectedSignedParameters.put("oauth_nonce", "179248056711247"); //UNIQUE
+        expectedSignedParameters.put("oauth_signature", "9gf64nLk+8IAsEbpxMozwaKuOng="); //UNIQUE
+        expectedSignedParameters.put("oauth_consumer_key", "TESTKEY");
+        expectedSignedParameters.put("oauth_signature_method", "HMAC-SHA1");
+        expectedSignedParameters.put("oauth_timestamp", "1497456878"); //UNIQUE
+        expectedSignedParameters.put("oauth_version", "1.0");
         expectedSignedLTIParameters = new LTIParameters(actionURL, expectedSignedParameters);
         
         expectedFormBody = new ArrayList<>();
@@ -134,8 +141,6 @@ public class LTILaunchServiceImplTest {
     @Test
     public void testPrepareParameters() throws Exception {
         logger.info("prepareParameters");
-//        Map<String, String> launchParameters = dao.getLaunchParameters(key);
-//        Map<String, String> replacedHeaders = expectedReplacedHeaders;
         Map<String, String> expResult = expectedPreparedParameters;
         Map<String, String> result = instance.prepareParameters(key, exampleHeaders);
         assertEquals(expResult, result);
@@ -152,9 +157,22 @@ public class LTILaunchServiceImplTest {
         Map<String, String> paramsToSign = expectedPreparedParameters;
         LTIParameters expResult = expectedSignedLTIParameters;
         LTIParameters result = instance.signParameters(key, paramsToSign);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertNotEquals(expResult, result);
+
+        assertEquals(expResult.getActionURL(), result.getActionURL());
+        assertEquals(expResult.getSignedParameters().keySet(), result.getSignedParameters().keySet());
+        assertEquals(
+                expResult.getSignedParameters().get("oauth_consumer_key"), 
+                "TESTKEY"
+        );
+        assertEquals(
+                expResult.getSignedParameters().get("oauth_signature_method"), 
+                "HMAC-SHA1"
+        );
+        assertEquals(
+                expResult.getSignedParameters().get("oauth_version"), 
+                "1.0"
+        );
     }
 
     /**
@@ -167,8 +185,6 @@ public class LTILaunchServiceImplTest {
         Map<String, String> expResult = expectedReplacedHeaders;
         Map<String, String> result = instance.replaceHeaders(key, requestHeaders);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
