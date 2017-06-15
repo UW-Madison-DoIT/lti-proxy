@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.hamcrest.core.IsCollectionContaining;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -21,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.CollectionUtils;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -72,9 +75,25 @@ public class LTILaunchServiceImplTest {
         exampleHeaders.put("wiscEduWiscardAccountNumber", "01234567890");
         exampleHeaders.put("eduWisconsinGivenName", "TESTY TESTMAN");
         
-        expectedFormData = null;
-        
         expectedPreparedParameters = new HashMap<>();
+        expectedPreparedParameters.put("context_id", "test");
+        expectedPreparedParameters.put("context_label", "test");
+        expectedPreparedParameters.put("context_title", "test");
+        expectedPreparedParameters.put("launch_presentation_document_target", "frame");
+        expectedPreparedParameters.put("launch_presentation_locale", "EN-US__");
+        expectedPreparedParameters.put("lis_outcome_service_url", "http://localhost:8080/d2l/le/lti/Outcome");
+        expectedPreparedParameters.put("lis_person_contact_email_primary", "TESTMAN@WISC.EDU");
+        expectedPreparedParameters.put("lis_person_name_family", "TESTMAN");
+        expectedPreparedParameters.put("lis_person_name_full", "testman");
+        expectedPreparedParameters.put("lis_person_name_given", "TESTY TESTMAN");
+        expectedPreparedParameters.put("lti_message_type", "basic-lti-launch-request");
+        expectedPreparedParameters.put("lti_version", "LTI-1p0");
+        expectedPreparedParameters.put("resource_link_description", "MyUW Blackboard Ultra Collaborate LTI Launcher");
+        expectedPreparedParameters.put("resource_link_title", "Collaborate Ultra (LTI)");
+        expectedPreparedParameters.put("roles", "urn:lti:instrole:ims/lis/Staff,Staff");
+        expectedPreparedParameters.put("tool_consumer_info_product_family_code", "desire2learn");
+        expectedPreparedParameters.put("tool_consumer_info_version", "10.6.0");
+        expectedPreparedParameters.put("user_id", "UW123B456");
         
         expectedReplacedHeaders = new HashMap<>();
         expectedReplacedHeaders.put("lis_person_contact_email_primary", "TESTMAN@WISC.EDU");
@@ -91,9 +110,16 @@ public class LTILaunchServiceImplTest {
         expectedSignedParameters.put("oauth_signature_method", "HMAC-SHA1");
         expectedSignedParameters.put("oauth_timestamp", "1497456878"); //UNIQUE
         expectedSignedParameters.put("oauth_version", "1.0");
+        expectedSignedParameters.putAll(expectedPreparedParameters);
         expectedSignedLTIParameters = new LTIParameters(actionURL, expectedSignedParameters);
         
         expectedFormBody = new ArrayList<>();
+        expectedFormBody.add(new BasicNameValuePair("oauth_nonce", "179248056711247"));
+        expectedFormBody.add(new BasicNameValuePair("oauth_signature", "9gf64nLk+8IAsEbpxMozwaKuOng="));
+        expectedFormBody.add(new BasicNameValuePair("oauth_consumer_key", "TESTKEY"));
+        expectedFormBody.add(new BasicNameValuePair("oauth_signature_method", "HMAC-SHA1"));
+        expectedFormBody.add(new BasicNameValuePair("oauth_timestamp", "1497456878"));
+        expectedFormBody.add(new BasicNameValuePair("oauth_version", "1.0"));
         
     }
     
@@ -125,14 +151,10 @@ public class LTILaunchServiceImplTest {
      * Test of getFormData method, of class LTILaunchServiceImpl.
      */
     @Test
+    @Ignore
     public void testGetFormData() throws Exception {
         logger.info("getFormData");
-        Map<String, String> headers = exampleHeaders;
-        JSONObject expResult = expectedFormData;
-        JSONObject result = instance.getFormData(key, headers);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        fail("TODO write this test!");
     }
 
     /**
@@ -144,8 +166,6 @@ public class LTILaunchServiceImplTest {
         Map<String, String> expResult = expectedPreparedParameters;
         Map<String, String> result = instance.prepareParameters(key, exampleHeaders);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -191,14 +211,10 @@ public class LTILaunchServiceImplTest {
      * Test of buildFormBody method, of class LTILaunchServiceImpl.
      */
     @Test
+    @Ignore
     public void testBuildFormBody() throws Exception {
         logger.info("buildFormBody");
-        Map<String, String> parameters = expectedSignedParameters;
-        List<NameValuePair> expResult = expectedFormBody;
-        List<NameValuePair> result = instance.buildFormBody(parameters);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        fail("trivial");
     }
     
 }
