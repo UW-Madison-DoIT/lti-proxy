@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-
 import org.imsglobal.lti.launch.LtiOauthSigner;
 import org.imsglobal.lti.launch.LtiSigner;
 import org.imsglobal.lti.launch.LtiSigningException;
@@ -25,7 +24,6 @@ import edu.wisc.my.ltiproxy.LTIParameters;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.http.Header;
@@ -44,28 +42,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Service
-public class LTILaunchServiceImpl implements LTILaunchService{
+public class LTILaunchServiceImpl implements LTILaunchService {
+
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     private LTILaunchPropertyFileDao LTILaunchPropertyFileDao;
-    
-    private static final String UTF8 = StandardCharsets.UTF_8.name();
-    
+
     @Autowired
-    void setLTILaunchProperityFileDao(LTILaunchPropertyFileDao LTILaunchPropertyFileDao){
+    void setLTILaunchProperityFileDao(LTILaunchPropertyFileDao LTILaunchPropertyFileDao) {
         this.LTILaunchPropertyFileDao = LTILaunchPropertyFileDao;
     }
 
     @Override
-    public URI getRedirectUri (String key, Map<String, String> headers) throws
-        JsonParseException, JsonMappingException, IOException, LtiSigningException, URISyntaxException {
+    public URI getRedirectUri(String key, Map<String, String> headers) throws
+            JsonParseException, JsonMappingException, IOException, LtiSigningException, URISyntaxException {
         URI result = null;
-        
+
         Map<String, String> prepParams = prepareParameters(key, headers);
         LTIParameters ltiParams = signParameters(key, prepParams);
-        
+
         String actionUrl = ltiParams.getActionURL();
         List<NameValuePair> formBody = buildFormBody(ltiParams.getSignedParameters());
-        
+
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse httpResp = null;
 
@@ -76,26 +73,25 @@ public class LTILaunchServiceImpl implements LTILaunchService{
             httpPost.setEntity(ent);
 
             httpResp = httpClient.execute(httpPost);
-            
+
             int status = httpResp.getStatusLine().getStatusCode();
             logger.debug("status " + status);
             for (Header header : httpResp.getAllHeaders()) {
                 logger.trace(header.getName() + " : " + header.getValue());
             }
-            
+
             HttpEntity respEntity = httpResp.getEntity();
             byte[] b = EntityUtils.toByteArray(respEntity);
             EntityUtils.consumeQuietly(respEntity);
-            
+
             logger.trace(new String(b));
-            
+
             if (HttpStatus.SC_SEE_OTHER == status) {
                 String loc = httpResp.getLastHeader(HttpHeaders.LOCATION).getValue();
                 logger.trace(loc);
                 result = new URI(loc);
             }
-            
-            
+
         } finally {
             if (null != httpClient) {
                 httpClient.close();
@@ -104,46 +100,45 @@ public class LTILaunchServiceImpl implements LTILaunchService{
                 httpResp.close();
             }
         }
-        
-        
+
         return result;
     }
-    
+
     @Override
     public JSONObject getFormData(String key, Map<String, String> headers) throws
-        JsonParseException, JsonMappingException, IOException, LtiSigningException, JSONException {
-        
+            JsonParseException, JsonMappingException, IOException, LtiSigningException, JSONException {
+
         Map<String, String> prepParams = prepareParameters(key, headers);
         LTIParameters ltiParams = signParameters(key, prepParams);
 
         JSONObject jsonToReturn = new JSONObject();
         jsonToReturn.put("action", ltiParams.getActionURL());
         JSONArray formInputs = new JSONArray();
-        for(Entry<String, String> entry : ltiParams.getSignedParameters().entrySet()){
+        for (Entry<String, String> entry : ltiParams.getSignedParameters().entrySet()) {
             JSONObject entryObject = new JSONObject();
             entryObject.put("name", entry.getKey());
             entryObject.put("value", entry.getValue());
             formInputs.put(entryObject);
         }
-        
+
         jsonToReturn.put("formInputs", formInputs);
         return jsonToReturn;
     }
-    
-    protected Map<String, String> prepareParameters(String key, Map<String, String> requestHeaders) throws 
+
+    protected Map<String, String> prepareParameters(String key, Map<String, String> requestHeaders) throws
             JsonParseException, JsonMappingException, IOException, LtiSigningException, JSONException {
         Map<String, String> launchParameters = LTILaunchPropertyFileDao.getLaunchParameters(key);
-        
+
         Map<String, String> paramsToSign = new TreeMap<>();
         paramsToSign.putAll(launchParameters);
         paramsToSign.putAll(replaceHeaders(key, requestHeaders));
-        
+
         return paramsToSign;
     }
-    
+
     protected LTIParameters signParameters(String key, Map<String, String> paramsToSign) throws LtiSigningException {
         LTIParameters result;
-        
+
         LtiSigner ltiSigner = new LtiOauthSigner();
         String ltiKey = LTILaunchPropertyFileDao.getProperty(key, "key");
         String ltiSecret = LTILaunchPropertyFileDao.getProperty(key, "secret");
@@ -151,32 +146,33 @@ public class LTILaunchServiceImpl implements LTILaunchService{
         Map<String, String> signedParameters = ltiSigner.signParameters(
                 paramsToSign, ltiKey, ltiSecret, ltiActionUrl, "POST");
         result = new LTIParameters(ltiActionUrl, signedParameters);
-        
+
         return result;
     }
-    
-    protected Map<String, String> replaceHeaders (String key, Map<String, String> requestHeaders) throws JsonParseException, JsonMappingException, IOException{
-        Map<String, String> headers = new HashMap<>();
-        Multimap<String, String> headersToReplace = LTILaunchPropertyFileDao.getHeadersToReplace(key);
-        for(String headerToReplace : headersToReplace.keySet()) {
-          Iterable<String> headerAttributes = headersToReplace.get(headerToReplace);
-          for(String header : headerAttributes) {
-            if(requestHeaders.get(header)!=null) {
-                headers.put(headerToReplace, requestHeaders.get(header));
-                break;
+
+    protected Map<String, String> replaceHeaders(String key, Map<String, String> requestHeaders) throws JsonParseException, JsonMappingException, IOException {
+        Map<String, String> result = new HashMap<>();
+        Multimap<String, String> paramToHeaders = LTILaunchPropertyFileDao.getHeadersToReplace(key);
+        for (String param : paramToHeaders.keySet()) {
+            Iterable<String> headers = paramToHeaders.get(param);
+            for (String headerKey : headers) {
+                String headerValue = requestHeaders.get(headerKey.toLowerCase());
+                if (null != headerValue) {
+                    result.put(param, headerValue);
+                    break;
+                }
             }
-          }
         }
-        return headers;
+        return result;
     }
-    
+
     protected List<NameValuePair> buildFormBody(Map<String, String> parameters) throws UnsupportedEncodingException {
         List<NameValuePair> result = new ArrayList<>();
-        
+
         for (Entry<String, String> entry : parameters.entrySet()) {
             result.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
         }
-        
+
         return result;
     }
 }

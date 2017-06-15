@@ -2,6 +2,7 @@ package edu.wisc.my.ltiproxy.service;
 
 import edu.wisc.my.ltiproxy.LTIParameters;
 import edu.wisc.my.ltiproxy.dao.LTILaunchPropertyFileDao;
+import edu.wisc.my.ltiproxy.web.LTIController;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.CollectionUtils;
 
@@ -34,6 +36,7 @@ public class LTILaunchServiceImplTest {
     protected LTILaunchServiceImpl instance;
     
     protected static String key;
+    protected static MockHttpServletRequest exampleReq;
     protected static Map<String, String> exampleHeaders;
     protected static JSONObject expectedFormData;
     protected static Map<String, String> expectedPreparedParameters;
@@ -50,30 +53,55 @@ public class LTILaunchServiceImplTest {
     public static void setUpClass() {
         key = "test";
         
-        exampleHeaders = new HashMap<String, String>();
-        exampleHeaders.put("Host", "localhost:8080");
-        exampleHeaders.put("Connection", "keep-alive");
-        exampleHeaders.put("Pragma", "no-cache");
-        exampleHeaders.put("Cache-Control", "no-cache");
-        exampleHeaders.put("Upgrade-Insecure-Requests", "1");
-        exampleHeaders.put("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/58.0.3029.110 Chrome/58.0.3029.110 Safari/537.36");
-        exampleHeaders.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-        exampleHeaders.put("DNT", "1");
-        exampleHeaders.put("Referer", "http://localhost:8080/web/apps/details/blackboard-ultra-launcher?q=blackboard");
-        exampleHeaders.put("Accept-Encoding", "gzip, deflate, sdch, br");
-        exampleHeaders.put("Accept-Language", "en-US,en;q=0.8");
+        exampleReq = new MockHttpServletRequest("GET", "http://localhost:8090/lti-proxy/lti-launch/test/");
+        exampleReq.addHeader("Host", "localhost:8080");
+        exampleReq.addHeader("Connection", "keep-alive");
+        exampleReq.addHeader("Pragma", "no-cache");
+        exampleReq.addHeader("Cache-Control", "no-cache");
+        exampleReq.addHeader("Upgrade-Insecure-Requests", "1");
+        exampleReq.addHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/58.0.3029.110 Chrome/58.0.3029.110 Safari/537.36");
+        exampleReq.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+        exampleReq.addHeader("DNT", "1");
+        exampleReq.addHeader("Referer", "http://localhost:8080/web/apps/details/blackboard-ultra-launcher?q=blackboard");
+        exampleReq.addHeader("Accept-Encoding", "gzip, deflate, sdch, br");
+        exampleReq.addHeader("Accept-Language", "en-US,en;q=0.8");
+        exampleReq.addHeader("eppn", "testman@wisc.edu");
+        exampleReq.addHeader("isMemberOf", "uw:domain:my.wisc.edu:my_uw_administrators;uw:domain:ohr.wisc.edu:trems;uw:domain:apps.mumaa.doit.wisc.edu:lumen_access;uw:domain:my.wisc.edu:my_uw_hr_officers");
+        exampleReq.addHeader("mail", "TESTMAN@WISC.EDU");
+        exampleReq.addHeader("pubcookie-user", "testman");
+        exampleReq.addHeader("uid", "testman");
+        exampleReq.addHeader("wiscEduHRPersonID", "01234567");
+        exampleReq.addHeader("wiscEduHRSEmplID", "01234567");
+        exampleReq.addHeader("wiscEduISISEmplID", "0123456789");
+        exampleReq.addHeader("wiscEduPVI", "UW123B456");
+        exampleReq.addHeader("wiscEduSORLastName", "TESTMAN");
+        exampleReq.addHeader("wiscEduWiscardAccountNumber", "01234567890");
+        exampleReq.addHeader("eduWisconsinGivenName", "TESTY TESTMAN");
+        
+        exampleHeaders = new HashMap<>();
+        exampleHeaders.put("host", "localhost:8080");
+        exampleHeaders.put("connection", "keep-alive");
+        exampleHeaders.put("pragma", "no-cache");
+        exampleHeaders.put("cache-control", "no-cache");
+        exampleHeaders.put("upgrade-insecure-requests", "1");
+        exampleHeaders.put("user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/58.0.3029.110 Chrome/58.0.3029.110 Safari/537.36");
+        exampleHeaders.put("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+        exampleHeaders.put("dnt", "1");
+        exampleHeaders.put("referer", "http://localhost:8080/web/apps/details/blackboard-ultra-launcher?q=blackboard");
+        exampleHeaders.put("accept-encoding", "gzip, deflate, sdch, br");
+        exampleHeaders.put("accept-language", "en-US,en;q=0.8");
         exampleHeaders.put("eppn", "testman@wisc.edu");
-        exampleHeaders.put("isMemberOf", "uw:domain:my.wisc.edu:my_uw_administrators;uw:domain:ohr.wisc.edu:trems;uw:domain:apps.mumaa.doit.wisc.edu:lumen_access;uw:domain:my.wisc.edu:my_uw_hr_officers");
+        exampleHeaders.put("ismemberof", "uw:domain:my.wisc.edu:my_uw_administrators;uw:domain:ohr.wisc.edu:trems;uw:domain:apps.mumaa.doit.wisc.edu:lumen_access;uw:domain:my.wisc.edu:my_uw_hr_officers");
         exampleHeaders.put("mail", "TESTMAN@WISC.EDU");
         exampleHeaders.put("pubcookie-user", "testman");
         exampleHeaders.put("uid", "testman");
-        exampleHeaders.put("wiscEduHRPersonID", "01234567");
-        exampleHeaders.put("wiscEduHRSEmplID", "01234567");
-        exampleHeaders.put("wiscEduISISEmplID", "0123456789");
-        exampleHeaders.put("wiscEduPVI", "UW123B456");
-        exampleHeaders.put("wiscEduSORLastName", "TESTMAN");
-        exampleHeaders.put("wiscEduWiscardAccountNumber", "01234567890");
-        exampleHeaders.put("eduWisconsinGivenName", "TESTY TESTMAN");
+        exampleHeaders.put("wisceduhrpersonid", "01234567");
+        exampleHeaders.put("wisceduhrsemplid", "01234567");
+        exampleHeaders.put("wisceduisisemplid", "0123456789");
+        exampleHeaders.put("wiscedupvi", "UW123B456");
+        exampleHeaders.put("wiscedusorlastname", "TESTMAN");
+        exampleHeaders.put("wisceduwiscardaccountnumber", "01234567890");
+        exampleHeaders.put("eduwisconsingivenname", "TESTY TESTMAN");
         
         expectedPreparedParameters = new HashMap<>();
         expectedPreparedParameters.put("context_id", "test");
@@ -137,6 +165,14 @@ public class LTILaunchServiceImplTest {
     public void tearDown() {
     }
 
+    @Test
+    public void testHeaderConversion() {
+        logger.info("headerConversion");
+        Map<String, String> expResult = exampleHeaders;
+        Map<String, String> result = LTIController.getHeaders(exampleReq);
+        assertEquals(expResult, result);
+    }
+    
     /**
      * Test of getRedirectUri method, of class LTILaunchServiceImpl.
      */
@@ -154,7 +190,7 @@ public class LTILaunchServiceImplTest {
     @Ignore
     public void testGetFormData() throws Exception {
         logger.info("getFormData");
-        fail("TODO write this test!");
+        fail("TODO write a resiliant test!");
     }
 
     /**
@@ -206,15 +242,4 @@ public class LTILaunchServiceImplTest {
         Map<String, String> result = instance.replaceHeaders(key, requestHeaders);
         assertEquals(expResult, result);
     }
-
-    /**
-     * Test of buildFormBody method, of class LTILaunchServiceImpl.
-     */
-    @Test
-    @Ignore
-    public void testBuildFormBody() throws Exception {
-        logger.info("buildFormBody");
-        fail("trivial");
-    }
-    
 }

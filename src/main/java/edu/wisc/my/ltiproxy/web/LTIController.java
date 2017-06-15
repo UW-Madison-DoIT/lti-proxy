@@ -28,42 +28,40 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/lti-launch")
 public class LTIController {
 
-  private LTILaunchService LTILaunchService;
+    private LTILaunchService LTILaunchService;
 
-  
-  @Autowired
-  public void setLTILaunchService(LTILaunchService LTILaunchService){
-      this.LTILaunchService = LTILaunchService;
-  }
+    @Autowired
+    public void setLTILaunchService(LTILaunchService LTILaunchService) {
+        this.LTILaunchService = LTILaunchService;
+    }
 
-  @RequestMapping(value="/go/{key}", method=RequestMethod.GET)
-  public void proxyRedirect(HttpServletRequest request, HttpServletResponse response, @PathVariable String key) throws 
-          ClientProtocolException, IOException, LtiSigningException, URISyntaxException {
-      URI uri = LTILaunchService.getRedirectUri(key, getHeaders(request));
-      
-      if (null != uri) {
-          response.sendRedirect(uri.toString());
-      } else {
-          String errorMsg = "Could not build redirect URI" + ((!Strings.isNullOrEmpty(key))?" for "+key: "");
-          response.sendError(HttpServletResponse.SC_BAD_REQUEST, errorMsg);
-      }
-  }
+    @RequestMapping(value = "/go/{key}", method = RequestMethod.GET)
+    public void proxyRedirect(HttpServletRequest request, HttpServletResponse response, @PathVariable String key) throws
+            ClientProtocolException, IOException, LtiSigningException, URISyntaxException {
+        URI uri = LTILaunchService.getRedirectUri(key, getHeaders(request));
 
-  @RequestMapping(value="/{key}", method=RequestMethod.GET)
-  public @ResponseBody Object proxyResource(HttpServletRequest request, HttpServletResponse response, @PathVariable String key) throws 
-          ClientProtocolException, IOException, LtiSigningException, JSONException {
-      JSONObject jsonToReturn = LTILaunchService.getFormData(key, getHeaders(request));
-      response.setStatus(HttpServletResponse.SC_OK);
-      return jsonToReturn.toString();
-  }
+        if (null != uri) {
+            response.sendRedirect(uri.toString());
+        } else {
+            String errorMsg = "Could not build redirect URI" + ((!Strings.isNullOrEmpty(key)) ? " for " + key : "");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, errorMsg);
+        }
+    }
 
-  private Map<String, String> getHeaders(HttpServletRequest req) {
-      Map<String, String> result = new HashMap<>();
-      
-      for (String headerName : Collections.list(req.getHeaderNames())) {
-          result.put(headerName, req.getHeader(headerName));
-      }
-      
-      return result;
-  }
+    @RequestMapping(value = "/{key}", method = RequestMethod.GET)
+    public @ResponseBody
+    Object proxyResource(HttpServletRequest request, HttpServletResponse response, @PathVariable String key) throws
+            ClientProtocolException, IOException, LtiSigningException, JSONException {
+        JSONObject jsonToReturn = LTILaunchService.getFormData(key, getHeaders(request));
+        response.setStatus(HttpServletResponse.SC_OK);
+        return jsonToReturn.toString();
+    }
+
+    public static Map<String, String> getHeaders(HttpServletRequest req) {
+        Map<String, String> result = new HashMap<>();
+        for (String headerName : Collections.list(req.getHeaderNames())) {
+            result.put(headerName.toLowerCase(), req.getHeader(headerName));
+        }
+        return result;
+    }
 }
