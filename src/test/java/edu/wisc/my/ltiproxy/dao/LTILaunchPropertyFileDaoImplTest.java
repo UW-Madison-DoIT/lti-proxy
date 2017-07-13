@@ -1,6 +1,6 @@
 package edu.wisc.my.ltiproxy.dao;
 
-import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -60,7 +60,7 @@ public class LTILaunchPropertyFileDaoImplTest {
         expectedLaunchParameters.put("tool_consumer_info_version", "10.6.0");
         expectedLaunchParameters.put("user_id", "");
         
-        expectedHeadersToReplace = ArrayListMultimap.create();
+        expectedHeadersToReplace = LinkedListMultimap.create();
         expectedHeadersToReplace.put("lis_person_contact_email_primary", "mail");
         expectedHeadersToReplace.put("lis_person_name_family", "eduWisconsinSurname");
         expectedHeadersToReplace.put("lis_person_name_family", "wiscEduSORLastName");
