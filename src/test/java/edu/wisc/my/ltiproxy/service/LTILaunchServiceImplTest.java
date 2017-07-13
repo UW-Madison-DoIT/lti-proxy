@@ -77,6 +77,7 @@ public class LTILaunchServiceImplTest {
         exampleReq.addHeader("wiscEduSORLastName", "TESTMAN");
         exampleReq.addHeader("wiscEduWiscardAccountNumber", "01234567890");
         exampleReq.addHeader("eduWisconsinGivenName", "TESTY WISCONSIN");
+        exampleReq.addHeader("eduWisconsinSPVI", "");
         
         exampleHeaders = new LinkedHashMap<>();
         exampleHeaders.put("host", "localhost:8080");
@@ -104,6 +105,7 @@ public class LTILaunchServiceImplTest {
         exampleHeaders.put("wiscedusorlastname", "TESTMAN");
         exampleHeaders.put("wisceduwiscardaccountnumber", "01234567890");
         exampleHeaders.put("eduwisconsingivenname", "TESTY WISCONSIN");
+        exampleHeaders.put("eduwisconsinspvi", "");
         
         expectedPreparedParameters = new LinkedHashMap<>();
         expectedPreparedParameters.put("context_id", "test");
