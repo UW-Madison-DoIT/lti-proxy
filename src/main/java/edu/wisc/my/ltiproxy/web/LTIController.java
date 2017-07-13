@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,7 +58,7 @@ public class LTIController {
     }
 
     public static Map<String, String> getHeaders(HttpServletRequest req) {
-        Map<String, String> result = new HashMap<>();
+        Map<String, String> result = new LinkedHashMap<>();
         for (String headerName : Collections.list(req.getHeaderNames())) {
             result.put(headerName.toLowerCase(), req.getHeader(headerName));
         }

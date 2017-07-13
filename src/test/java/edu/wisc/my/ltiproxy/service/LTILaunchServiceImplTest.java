@@ -4,12 +4,11 @@ import edu.wisc.my.ltiproxy.LTIParameters;
 import edu.wisc.my.ltiproxy.dao.LTILaunchPropertyFileDao;
 import edu.wisc.my.ltiproxy.web.LTIController;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.hamcrest.core.IsCollectionContaining;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -25,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.CollectionUtils;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -69,16 +67,18 @@ public class LTILaunchServiceImplTest {
         exampleReq.addHeader("isMemberOf", "uw:domain:my.wisc.edu:my_uw_administrators;uw:domain:ohr.wisc.edu:trems;uw:domain:apps.mumaa.doit.wisc.edu:lumen_access;uw:domain:my.wisc.edu:my_uw_hr_officers");
         exampleReq.addHeader("mail", "TESTMAN@WISC.EDU");
         exampleReq.addHeader("pubcookie-user", "testman");
+        exampleReq.addHeader("givenName", "TESTY WISC");
         exampleReq.addHeader("uid", "testman");
         exampleReq.addHeader("wiscEduHRPersonID", "01234567");
         exampleReq.addHeader("wiscEduHRSEmplID", "01234567");
         exampleReq.addHeader("wiscEduISISEmplID", "0123456789");
         exampleReq.addHeader("wiscEduPVI", "UW123B456");
+        exampleReq.addHeader("displayName", "TESTY WISC TESTMAN");
         exampleReq.addHeader("wiscEduSORLastName", "TESTMAN");
         exampleReq.addHeader("wiscEduWiscardAccountNumber", "01234567890");
-        exampleReq.addHeader("eduWisconsinGivenName", "TESTY TESTMAN");
+        exampleReq.addHeader("eduWisconsinGivenName", "TESTY WISCONSIN");
         
-        exampleHeaders = new HashMap<>();
+        exampleHeaders = new LinkedHashMap<>();
         exampleHeaders.put("host", "localhost:8080");
         exampleHeaders.put("connection", "keep-alive");
         exampleHeaders.put("pragma", "no-cache");
@@ -94,16 +94,18 @@ public class LTILaunchServiceImplTest {
         exampleHeaders.put("ismemberof", "uw:domain:my.wisc.edu:my_uw_administrators;uw:domain:ohr.wisc.edu:trems;uw:domain:apps.mumaa.doit.wisc.edu:lumen_access;uw:domain:my.wisc.edu:my_uw_hr_officers");
         exampleHeaders.put("mail", "TESTMAN@WISC.EDU");
         exampleHeaders.put("pubcookie-user", "testman");
+        exampleHeaders.put("givenname", "TESTY WISC");
         exampleHeaders.put("uid", "testman");
         exampleHeaders.put("wisceduhrpersonid", "01234567");
         exampleHeaders.put("wisceduhrsemplid", "01234567");
         exampleHeaders.put("wisceduisisemplid", "0123456789");
         exampleHeaders.put("wiscedupvi", "UW123B456");
+        exampleHeaders.put("displayname", "TESTY WISC TESTMAN");
         exampleHeaders.put("wiscedusorlastname", "TESTMAN");
         exampleHeaders.put("wisceduwiscardaccountnumber", "01234567890");
-        exampleHeaders.put("eduwisconsingivenname", "TESTY TESTMAN");
+        exampleHeaders.put("eduwisconsingivenname", "TESTY WISCONSIN");
         
-        expectedPreparedParameters = new HashMap<>();
+        expectedPreparedParameters = new LinkedHashMap<>();
         expectedPreparedParameters.put("context_id", "test");
         expectedPreparedParameters.put("context_label", "test");
         expectedPreparedParameters.put("context_title", "test");
@@ -112,8 +114,8 @@ public class LTILaunchServiceImplTest {
         expectedPreparedParameters.put("lis_outcome_service_url", "http://localhost:8080/d2l/le/lti/Outcome");
         expectedPreparedParameters.put("lis_person_contact_email_primary", "TESTMAN@WISC.EDU");
         expectedPreparedParameters.put("lis_person_name_family", "TESTMAN");
-        expectedPreparedParameters.put("lis_person_name_full", "testman");
-        expectedPreparedParameters.put("lis_person_name_given", "TESTY TESTMAN");
+        expectedPreparedParameters.put("lis_person_name_full", "TESTY WISC TESTMAN");
+        expectedPreparedParameters.put("lis_person_name_given", "TESTY WISCONSIN");
         expectedPreparedParameters.put("lti_message_type", "basic-lti-launch-request");
         expectedPreparedParameters.put("lti_version", "LTI-1p0");
         expectedPreparedParameters.put("resource_link_description", "MyUW Blackboard Ultra Collaborate LTI Launcher");
@@ -123,15 +125,15 @@ public class LTILaunchServiceImplTest {
         expectedPreparedParameters.put("tool_consumer_info_version", "10.6.0");
         expectedPreparedParameters.put("user_id", "UW123B456");
         
-        expectedReplacedHeaders = new HashMap<>();
+        expectedReplacedHeaders = new LinkedHashMap<>();
         expectedReplacedHeaders.put("lis_person_contact_email_primary", "TESTMAN@WISC.EDU");
         expectedReplacedHeaders.put("lis_person_name_family", "TESTMAN");
-        expectedReplacedHeaders.put("lis_person_name_full", "testman");
-        expectedReplacedHeaders.put("lis_person_name_given", "TESTY TESTMAN");
+        expectedReplacedHeaders.put("lis_person_name_full", "TESTY WISC TESTMAN");
+        expectedReplacedHeaders.put("lis_person_name_given", "TESTY WISCONSIN");
         expectedReplacedHeaders.put("user_id", "UW123B456");
         
         actionURL = "http://localhost:8080/lti";
-        expectedSignedParameters = new HashMap<>();
+        expectedSignedParameters = new LinkedHashMap<>();
         expectedSignedParameters.put("oauth_nonce", "179248056711247"); //UNIQUE
         expectedSignedParameters.put("oauth_signature", "9gf64nLk+8IAsEbpxMozwaKuOng="); //UNIQUE
         expectedSignedParameters.put("oauth_consumer_key", "TESTKEY");
