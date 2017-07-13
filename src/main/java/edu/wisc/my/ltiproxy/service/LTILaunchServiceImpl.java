@@ -26,6 +26,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -157,7 +158,7 @@ public class LTILaunchServiceImpl implements LTILaunchService {
             Iterable<String> headers = paramToHeaders.get(param);
             for (String headerKey : headers) {
                 String headerValue = requestHeaders.get(headerKey.toLowerCase());
-                if (null != headerValue) {
+                if (StringUtils.isNotBlank(headerValue)) {
                     result.put(param, headerValue);
                     break;
                 }
