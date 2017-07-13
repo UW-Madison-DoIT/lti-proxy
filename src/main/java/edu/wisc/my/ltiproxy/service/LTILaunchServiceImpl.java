@@ -3,7 +3,6 @@ package edu.wisc.my.ltiproxy.service;
 import edu.wisc.my.ltiproxy.dao.LTILaunchPropertyFileDao;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
@@ -25,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -151,7 +151,7 @@ public class LTILaunchServiceImpl implements LTILaunchService {
     }
 
     protected Map<String, String> replaceHeaders(String key, Map<String, String> requestHeaders) throws JsonParseException, JsonMappingException, IOException {
-        Map<String, String> result = new HashMap<>();
+        Map<String, String> result = new LinkedHashMap<>();
         Multimap<String, String> paramToHeaders = LTILaunchPropertyFileDao.getHeadersToReplace(key);
         for (String param : paramToHeaders.keySet()) {
             Iterable<String> headers = paramToHeaders.get(param);

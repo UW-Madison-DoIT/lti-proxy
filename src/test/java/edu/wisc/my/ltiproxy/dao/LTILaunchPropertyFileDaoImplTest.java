@@ -1,8 +1,8 @@
 package edu.wisc.my.ltiproxy.dao;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -40,7 +40,7 @@ public class LTILaunchPropertyFileDaoImplTest {
         
         expectedActionURL = "http://localhost:8080/lti";
         
-        expectedLaunchParameters = new HashMap<>();
+        expectedLaunchParameters = new LinkedHashMap<>();
         expectedLaunchParameters.put("context_id", "test");
         expectedLaunchParameters.put("context_label", "test");
         expectedLaunchParameters.put("context_title", "test");
@@ -60,13 +60,15 @@ public class LTILaunchPropertyFileDaoImplTest {
         expectedLaunchParameters.put("tool_consumer_info_version", "10.6.0");
         expectedLaunchParameters.put("user_id", "");
         
-        expectedHeadersToReplace = HashMultimap.create();
+        expectedHeadersToReplace = ArrayListMultimap.create();
         expectedHeadersToReplace.put("lis_person_contact_email_primary", "mail");
         expectedHeadersToReplace.put("lis_person_name_family", "eduWisconsinSurname");
         expectedHeadersToReplace.put("lis_person_name_family", "wiscEduSORLastName");
         expectedHeadersToReplace.put("lis_person_name_full", "eduWisconsinCommonName");
+        expectedHeadersToReplace.put("lis_person_name_full", "displayName");
         expectedHeadersToReplace.put("lis_person_name_full", "uid");
         expectedHeadersToReplace.put("lis_person_name_given", "eduWisconsinGivenName");
+        expectedHeadersToReplace.put("lis_person_name_given", "givenName");
         expectedHeadersToReplace.put("user_id", "eduWisconsinSPVI");
         expectedHeadersToReplace.put("user_id", "wiscEduPVI");
 
