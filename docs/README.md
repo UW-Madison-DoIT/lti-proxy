@@ -13,7 +13,7 @@ This project uses maven.  `mvn package` will build a warfile for deployment.
 Create an `application.properties` file under `src/main/resources`.
 You may wish to copy the existing `application.properties.example` file.
 
-The application supports a property file for configuration.  Replace `app` with
+The application supports a [property file for configuration](launchParams.md).  Replace `app` with
 a unique identifier in your deployment.  The key you choose will be the endpoint
 that your configuration is accessible through.  For example, the example
 properties file allows /lti-proxy/lti-launch/app to return the JSON feed needed.

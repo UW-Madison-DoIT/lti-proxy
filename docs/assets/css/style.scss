@@ -125,7 +125,7 @@ footer {
   }
 }
 
-code {
+:not(pre) > code {
   padding: 4px 8px;
   background: #f8f8f8; 
   border-radius: 5px; 
