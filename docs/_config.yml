@@ -1,1 +1,8 @@
-theme: jekyll-theme-hacker
+gems:
+  - github-pages
+  - jekyll-default-layout
+  - jekyll-optional-front-matter
+  - jekyll-readme-index
+  - jekyll-titles-from-headings
+
+theme: jekyll-theme-minimal
